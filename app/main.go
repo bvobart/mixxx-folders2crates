@@ -30,7 +30,7 @@ func main() {
 	}
 
 	// detect which folders in the music library should become crates and what tracks should be in them according to the folder layout.
-	crates, err := folders2crates.DetectCrates(libfolder, ignoreFile)
+	crates, err := folders2crates.FindCrates(libfolder, ignoreFile)
 	if err != nil {
 		color.Red("cannot detect crates from your music library: %s", color.YellowString(err.Error()))
 		os.Exit(5)

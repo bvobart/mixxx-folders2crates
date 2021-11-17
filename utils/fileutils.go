@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"path"
 )
 
 // FileExists checks if a file exists and is not a directory
@@ -40,14 +39,4 @@ func HomeDir() string {
 		return dir
 	}
 	return os.Getenv("USERPROFILE") // windows
-}
-
-// Returns true iff the filename has an extension that is supported by Mixxx
-// See https://manual.mixxx.org/2.0/en/chapters/configuration.html#importing-your-audio-files for the list of supported files
-func IsMusicFile(filename string) bool {
-	switch path.Ext(filename) {
-	case ".wav", ".aiff", ".aif", ".mp3", ".ogg", ".flac", ".opus":
-		return true
-	}
-	return false
 }
