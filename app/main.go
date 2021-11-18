@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
-	folders2crates "github.com/bvobart/mixxx-folders2crates"
-	"github.com/bvobart/mixxx-folders2crates/utils"
 	"github.com/fatih/color"
 	ignore "github.com/sabhiram/go-gitignore"
+
+	folders2crates "github.com/bvobart/mixxx-folders2crates"
+	"github.com/bvobart/mixxx-folders2crates/utils"
 )
 
 var mixxxDB = path.Join(utils.HomeDir(), ".mixxx/mixxxdb.sqlite") // default Mixxx SQLite DB location under Linux
@@ -37,14 +38,18 @@ func main() {
 	}
 
 	// temporary: print all crates
+	bold := color.New(color.Bold)
+	faint := color.New(color.Faint)
 	for _, crate := range crates {
 		if len(crate.Tracks) == 0 {
 			continue
 		}
 
-		fmt.Println(crate.Name, len(crate.Tracks))
+		bold.Print(crate.Name, " (", len(crate.Tracks), " tracks)\n")
 		for _, track := range crate.Tracks {
-			fmt.Println("-", track.Path)
+			fmt.Print("- ")
+			faint.Print(path.Dir(track.Path), "/")
+			fmt.Println(path.Base(track.Path))
 		}
 		fmt.Println()
 	}
