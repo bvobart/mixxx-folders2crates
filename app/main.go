@@ -11,16 +11,15 @@ import (
 	ignore "github.com/sabhiram/go-gitignore"
 
 	folders2crates "github.com/bvobart/mixxx-folders2crates"
+	"github.com/bvobart/mixxx-folders2crates/mixxxdb"
 	"github.com/bvobart/mixxx-folders2crates/utils"
 )
-
-var mixxxDB = path.Join(utils.HomeDir(), ".mixxx/mixxxdb.sqlite") // default Mixxx SQLite DB location under Linux
 
 func main() {
 	startTime := time.Now()
 	libfolder := parseArgs(os.Args)
 
-	color.Green("Mixxx DB:      %s", color.HiWhiteString(mixxxDB))
+	color.Green("Mixxx DB:      %s", color.HiWhiteString(mixxxdb.DefaultMixxxDBPath))
 	color.Green("Music Library: %s", color.HiWhiteString(libfolder))
 	fmt.Println()
 
@@ -52,6 +51,12 @@ func main() {
 			fmt.Println(path.Base(track.Path))
 		}
 		fmt.Println()
+	}
+
+	_, err = mixxxdb.OpenDefault()
+	if err != nil {
+		color.Red(err.Error())
+		os.Exit(6)
 	}
 
 	// TODO: insert into Mixxx's SQLite DB
@@ -91,7 +96,7 @@ func parseArgs(args []string) string {
 		os.Exit(2)
 	}
 
-	if !utils.FileExists(mixxxDB) {
+	if !utils.FileExists(mixxxdb.DefaultMixxxDBPath) {
 		color.Red("cannot open your Mixxx DB, because it does not exist.")
 		color.Yellow("Try starting Mixxx, then closing it, then running this program again.")
 		os.Exit(4)

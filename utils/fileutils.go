@@ -33,7 +33,9 @@ func FolderIsEmpty(filename string) (bool, error) {
 	return false, err
 }
 
-// Returns the user's home directory. On Linux and MacOS, this is equivalent to resolving `~`
+// Returns the user's home directory.
+// On Linux and MacOS, this is equivalent to resolving `~`
+// On Windows, this is equivalent to %USERPROFILE%
 func HomeDir() string {
 	if dir := os.Getenv("HOME"); dir != "" {
 		return dir
