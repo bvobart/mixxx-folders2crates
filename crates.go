@@ -15,8 +15,9 @@ import (
 // When it finds a folder with at least track in it, it will make a crate with the name of the path to that folder
 // and the tracks that are directly inside the folder.
 // Respects the ignore patterns specified with the github.com/sabhiram/go-gitignore library.
-func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]mixxxdb.Crate, error) {
-	crates := []mixxxdb.Crate{}
+// Note: Tracks will not have any database IDs.
+func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]mixxxdb.CrateTracks, error) {
+	crates := []mixxxdb.CrateTracks{}
 
 	err := filepath.WalkDir(libfolder, func(fpath string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -45,12 +46,9 @@ func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]mixxxdb.Crate, er
 			return nil
 		}
 
+		var id uint // unknown at this point
 		name := NameCrate(relpath)
-		crates = append(crates, mixxxdb.Crate{
-			ID:     0, // unknown at this point
-			Name:   name,
-			Tracks: tracks,
-		})
+		crates = append(crates, mixxxdb.NewCrateTracks(id, name, tracks))
 		return nil
 	})
 

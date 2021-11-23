@@ -34,7 +34,7 @@ type MixxxDB interface {
 
 type CratesDB interface {
 	FindByName(name string) (*Crate, error)
-	Insert(crate Crate) error
+	InsertTracks(crate CrateTracks) error
 	List() ([]Crate, error)
 	WipeTracks(crateid uint) error
 }
@@ -74,7 +74,8 @@ func (c *cratesDB) FindByName(name string) (*Crate, error) {
 	return &Crate{ID: id, Name: name}, err
 }
 
-func (c *cratesDB) Insert(crate Crate) error {
+func (c *cratesDB) InsertTracks(crate CrateTracks) error {
+
 	return errors.New("TODO")
 }
 

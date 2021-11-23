@@ -5,6 +5,17 @@ type Crate struct {
 	ID uint
 	// The name of the crate.
 	Name string
+}
 
+type CrateTracks struct {
+	Crate
 	Tracks []Track
+}
+
+func NewCrate(id uint, name string) Crate {
+	return Crate{ID: id, Name: name}
+}
+
+func NewCrateTracks(id uint, name string, tracks []Track) CrateTracks {
+	return CrateTracks{Crate: Crate{ID: id, Name: name}, Tracks: tracks}
 }

@@ -24,7 +24,7 @@ var ErrTrackNotFound = errors.New("track not found in MixxxDB")
 //   - Add all tracks that are in the generated crate.
 
 // UpdateCratesDB ...
-func UpdateCratesDB(db mixxxdb.MixxxDB, crates []mixxxdb.Crate) error {
+func UpdateCratesDB(db mixxxdb.MixxxDB, crates []mixxxdb.CrateTracks) error {
 	var errors *multierror.Error
 	for _, crate := range crates {
 		errors = multierror.Append(errors, UpdateCrateInDB(db, crate))
@@ -33,7 +33,7 @@ func UpdateCratesDB(db mixxxdb.MixxxDB, crates []mixxxdb.Crate) error {
 }
 
 // UpdateCrateInDB ...
-func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.Crate) error {
+func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.CrateTracks) error {
 	// check if all the crate's tracks are already inserted in Mixxx's DB.
 	// Simultaneously, get their IDs
 	var errors *multierror.Error
@@ -59,7 +59,7 @@ func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.Crate) error {
 	}
 
 	// otherwise just insert the crate and its tracks.
-	return db.Crates().Insert(crate)
+	return db.Crates().InsertTracks(crate)
 }
 
 // FindAndSetTrackID searches the MixxxDB for the given track by its path and, if found,
