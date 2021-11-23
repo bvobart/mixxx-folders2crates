@@ -32,19 +32,40 @@ func main() {
 	// detect which folders in the music library should become crates and what tracks should be in them according to the folder layout.
 	crates, err := folders2crates.FindCrates(libfolder, ignoreFile)
 	if err != nil {
-		color.Red("cannot detect crates from your music library: %s", color.YellowString(err.Error()))
+		color.Red("Error detecting crates from your music library:")
+		color.Red("  %s", color.YellowString(err.Error()))
 		os.Exit(5)
+	}
+
+	// open Mixxx's database
+	db, err := mixxxdb.OpenDefault()
+	if err != nil {
+		color.Red("Error opening Mixxx's DB:")
+		color.Red("  %s", color.YellowString(err.Error()))
+		os.Exit(6)
 	}
 
 	// temporary: print all crates
 	bold := color.New(color.Bold)
 	faint := color.New(color.Faint)
+	green := color.New(color.FgGreen)
 	for _, crate := range crates {
 		if len(crate.Tracks) == 0 {
 			continue
 		}
 
-		bold.Print(crate.Name, " (", len(crate.Tracks), " tracks)\n")
+		bold.Print(crate.Name, " (", len(crate.Tracks), " tracks)")
+		dbCrate, err := db.Crates().FindByName(crate.Name)
+		if err != nil {
+			panic(err)
+		}
+
+		if dbCrate != nil {
+			green.Println(" - exists!")
+		} else {
+			fmt.Println()
+		}
+
 		for _, track := range crate.Tracks {
 			fmt.Print("- ")
 			faint.Print(path.Dir(track.Path), "/")
@@ -53,24 +74,29 @@ func main() {
 		fmt.Println()
 	}
 
-	_, err = mixxxdb.OpenDefault()
-	if err != nil {
-		color.Red(err.Error())
-		os.Exit(6)
+	if utils.IsInteractive() {
+		if err := utils.PromptConfirm("Are you sure you want these crates and tracks in Mixxx's DB?"); err != nil {
+			return
+		}
 	}
 
-	// TODO: insert into Mixxx's SQLite DB
-	// first focus on starting with an empty crates table (but songs already analysed so library and track_locations are populated)
-	// then insert all crates and their tracks.
-	// - for every crate, get crate id either by searching for crate with that name or creating a new crate.
-	// - for each track, get track id from searching DB table `track_locations` with track path,
-	// - add entry to `crate_tracks` with crate id and track id
-	//
-	// Next TODO: what if library is already populated from previous use?
-	// - Don't delete all crates, to protect personal custom crates.
-	// - If a crate with the same name already exists:
-	//   - Wipe the crate.
-	//   - Add all tracks that are in the generated crate.
+	err = folders2crates.UpdateCratesDB(db, crates)
+	if err != nil {
+		color.Red("Error:")
+		color.Red("  %s", color.YellowString(err.Error()))
+		os.Exit(7)
+	}
+
+	bold.Println("Listing crates...")
+	dbCrates, err := db.Crates().List()
+	if err != nil {
+		color.Red("Error:")
+		color.Red("  %s", color.YellowString(err.Error()))
+		os.Exit(7)
+	}
+	for _, crate := range dbCrates {
+		faint.Println("-", crate.Name)
+	}
 
 	fmt.Println("took:", time.Since(startTime))
 }
