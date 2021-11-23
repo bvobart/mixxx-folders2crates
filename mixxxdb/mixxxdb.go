@@ -2,12 +2,13 @@ package mixxxdb
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
-	folders2crates "github.com/bvobart/mixxx-folders2crates"
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// Opens the default MixxxDB SQLite file, as defined by the platform-specific `DefaultMixxxDBPath` variable.
 func OpenDefault() (MixxxDB, error) {
 	return Open(DefaultMixxxDBPath)
 }
@@ -32,15 +33,14 @@ type MixxxDB interface {
 }
 
 type CratesDB interface {
-	FindByName(name string) (*folders2crates.Crate, error)
-	Insert(crate folders2crates.Crate) error
-	InsertMany(crates []folders2crates.Crate) error
-	List() ([]folders2crates.Crate, error)
-	// TODO: Wipe?
+	FindByName(name string) (*Crate, error)
+	Insert(crate Crate) error
+	List() ([]Crate, error)
+	WipeTracks(crateid uint) error
 }
 
 type TracksDB interface {
-	FindByPath(filepath string) (*folders2crates.Track, error)
+	FindByPath(filepath string) (*Track, error)
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -64,32 +64,28 @@ type cratesDB struct {
 	db *sql.DB
 }
 
-func (c *cratesDB) FindByName(name string) (*folders2crates.Crate, error) {
+func (c *cratesDB) FindByName(name string) (*Crate, error) {
 	var id uint
 	err := c.db.QueryRow("select id from crates where name = ?", name).Scan(&id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 
-	return &folders2crates.Crate{Id: id, Name: name}, err
+	return &Crate{ID: id, Name: name}, err
 }
 
-func (c *cratesDB) Insert(crate folders2crates.Crate) error {
-	return nil
+func (c *cratesDB) Insert(crate Crate) error {
+	return errors.New("TODO")
 }
 
-func (c *cratesDB) InsertMany(crates []folders2crates.Crate) error {
-	return nil
-}
-
-func (c *cratesDB) List() ([]folders2crates.Crate, error) {
+func (c *cratesDB) List() ([]Crate, error) {
 	rows, err := c.db.Query("select id, name from crates")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	crates := []folders2crates.Crate{}
+	crates := []Crate{}
 	for rows.Next() {
 		var id uint
 		var name string
@@ -97,16 +93,22 @@ func (c *cratesDB) List() ([]folders2crates.Crate, error) {
 			return nil, err
 		}
 
-		crates = append(crates, folders2crates.Crate{Id: id, Name: name})
+		crates = append(crates, Crate{ID: id, Name: name})
 	}
 
+	// TODO: retrieve each crate's tracks.
+
 	return crates, rows.Err()
+}
+
+func (c *cratesDB) WipeTracks(crateid uint) error {
+	return errors.New("TODO")
 }
 
 type tracksDB struct {
 	db *sql.DB
 }
 
-func (t *tracksDB) FindByPath(filepath string) (*folders2crates.Track, error) {
-	return nil, nil
+func (t *tracksDB) FindByPath(filepath string) (*Track, error) {
+	return nil, errors.New("TODO")
 }

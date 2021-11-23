@@ -4,14 +4,9 @@ import (
 	"os"
 	"path"
 
+	"github.com/bvobart/mixxx-folders2crates/mixxxdb"
 	ignore "github.com/sabhiram/go-gitignore"
 )
-
-// Track represents a music file that can be played by Mixxx.
-type Track struct {
-	Id   uint
-	Path string
-}
 
 // IsTrackFile detects if a file at the given path is indeed a track that can be played by Mixxx.
 // Returns true iff the filename has an extension that is supported by Mixxx.
@@ -25,14 +20,15 @@ func IsTrackFile(filename string) bool {
 }
 
 // FindTracks finds all tracks that can be played by Mixxx in a given folder.
+// Respects the ignore patterns specified with the github.com/sabhiram/go-gitignore library.
 // Note: Does *not* search recursively.
-func FindTracks(folder string, ignore *ignore.GitIgnore) ([]Track, error) {
+func FindTracks(folder string, ignore *ignore.GitIgnore) ([]mixxxdb.Track, error) {
 	files, err := os.ReadDir(folder)
 	if err != nil {
 		return nil, err
 	}
 
-	tracks := []Track{}
+	tracks := []mixxxdb.Track{}
 	for _, file := range files {
 		// if file is directory or if it's not a music file, skip.
 		if file.IsDir() || !IsTrackFile(file.Name()) {
@@ -45,12 +41,12 @@ func FindTracks(folder string, ignore *ignore.GitIgnore) ([]Track, error) {
 			continue
 		}
 
-		track := Track{
-			Id:   0, // unknown at this point.
+		track := mixxxdb.Track{
+			ID:   0, // unknown at this point.
 			Path: fullpath,
 		}
 		tracks = append(tracks, track)
 	}
 
-	return tracks, nil // TODO
+	return tracks, nil
 }

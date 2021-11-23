@@ -7,17 +7,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bvobart/mixxx-folders2crates/mixxxdb"
 	ignore "github.com/sabhiram/go-gitignore"
 )
 
-type Crate struct {
-	Id     uint
-	Name   string
-	Tracks []Track
-}
-
-func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]Crate, error) {
-	crates := []Crate{}
+// FindCrates searches the given folder for music tracks that Mixxx can play.
+// When it finds a folder with at least track in it, it will make a crate with the name of the path to that folder
+// and the tracks that are directly inside the folder.
+// Respects the ignore patterns specified with the github.com/sabhiram/go-gitignore library.
+func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]mixxxdb.Crate, error) {
+	crates := []mixxxdb.Crate{}
 
 	err := filepath.WalkDir(libfolder, func(fpath string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -47,8 +46,8 @@ func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]Crate, error) {
 		}
 
 		name := NameCrate(relpath)
-		crates = append(crates, Crate{
-			Id:     0, // unknown at this point
+		crates = append(crates, mixxxdb.Crate{
+			ID:     0, // unknown at this point
 			Name:   name,
 			Tracks: tracks,
 		})
