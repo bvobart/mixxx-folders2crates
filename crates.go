@@ -46,7 +46,7 @@ func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]mixxxdb.CrateTrac
 			return nil
 		}
 
-		var id uint // unknown at this point
+		var id int64 // unknown at this point
 		name := NameCrate(relpath)
 		crates = append(crates, mixxxdb.NewCrateTracks(id, name, tracks))
 		return nil

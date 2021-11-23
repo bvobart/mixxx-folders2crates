@@ -38,7 +38,7 @@ func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.CrateTracks) error {
 	// Simultaneously, get their IDs
 	var errors *multierror.Error
 	for _, track := range crate.Tracks {
-		multierror.Append(errors, FindAndSetTrackID(db, &track))
+		errors = multierror.Append(errors, FindAndSetTrackID(db, &track))
 	}
 	if err := errors.ErrorOrNil(); err != nil {
 		return err
@@ -59,7 +59,8 @@ func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.CrateTracks) error {
 	}
 
 	// otherwise just insert the crate and its tracks.
-	return db.Crates().InsertTracks(crate)
+	_, err = db.Crates().InsertTracks(crate)
+	return err
 }
 
 // FindAndSetTrackID searches the MixxxDB for the given track by its path and, if found,
