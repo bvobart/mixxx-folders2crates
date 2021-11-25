@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -75,30 +76,29 @@ func main() {
 	}
 
 	if utils.IsInteractive() {
+		pauseTime := time.Now()
 		if err := utils.PromptConfirm("Are you sure you want these crates and tracks in Mixxx's DB?"); err != nil {
 			return
 		}
+		startTime = startTime.Add(time.Since(pauseTime)) // ignores the time taken to confirm
+		fmt.Println()
 	}
 
 	err = folders2crates.UpdateCratesDB(db, crates)
+	if errors.Is(err, folders2crates.ErrTrackNotFound) || errors.Is(err, mixxxdb.ErrTrackNoID) {
+		color.Yellow("Warning!")
+		color.Yellow("  There were one or more tracks that couldn't be found in Mixxx's library.")
+		color.Yellow("  The easiest way to fix this problem is to start Mixxx, re-scan your library, then close Mixxx and run this program again.")
+		fmt.Println()
+	}
 	if err != nil {
 		color.Red("Error:")
 		color.Red("  %s", color.YellowString(err.Error()))
 		os.Exit(7)
 	}
 
-	bold.Println("Listing crates...")
-	dbCrates, err := db.Crates().List()
-	if err != nil {
-		color.Red("Error:")
-		color.Red("  %s", color.YellowString(err.Error()))
-		os.Exit(7)
-	}
-	for _, crate := range dbCrates {
-		faint.Println("-", crate.Name)
-	}
-
-	fmt.Println("took:", time.Since(startTime))
+	color.Green("Done!")
+	faint.Println("took:", time.Since(startTime))
 }
 
 // parseArgs parses the arguments passed to folders2crates, deals with invalid arguments and returns the one valid argument: the path to a music library folder

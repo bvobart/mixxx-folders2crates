@@ -59,5 +59,5 @@ func FindCrates(libfolder string, ignore *ignore.GitIgnore) ([]mixxxdb.CrateTrac
 // Replaces folder separators with -
 // E.g. House/90's becomes House - 90's
 func NameCrate(relpath string) string {
-	return strings.Replace(relpath, string(os.PathSeparator), " - ", -1)
+	return fmt.Sprint("TEST - ", strings.Replace(relpath, string(os.PathSeparator), " - ", -1))
 }

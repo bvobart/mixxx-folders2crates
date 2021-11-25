@@ -37,8 +37,8 @@ func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.CrateTracks) error {
 	// check if all the crate's tracks are already inserted in Mixxx's DB.
 	// Simultaneously, get their IDs
 	var errors *multierror.Error
-	for _, track := range crate.Tracks {
-		errors = multierror.Append(errors, FindAndSetTrackID(db, &track))
+	for i := range crate.Tracks {
+		errors = multierror.Append(errors, FindAndSetTrackID(db, &crate.Tracks[i]))
 	}
 	if err := errors.ErrorOrNil(); err != nil {
 		return err
@@ -47,20 +47,25 @@ func UpdateCrateInDB(db mixxxdb.MixxxDB, crate mixxxdb.CrateTracks) error {
 	// check whether the crate already exists
 	dbcrate, err := db.Crates().FindByName(crate.Name)
 	if err != nil {
-		return fmt.Errorf("error finding crate %s: %w", dbcrate.Name, err)
+		return fmt.Errorf("error finding crate '%s': %w", dbcrate.Name, err)
 	}
 
-	// if so, then wipe the crate
+	// if so, then wipe the crate, but save the crate's ID
 	if dbcrate != nil {
+		crate.ID = dbcrate.ID
+
 		err := db.Crates().WipeTracks(dbcrate.ID)
 		if err != nil {
 			return fmt.Errorf("error wiping crate %d (%s): %w", dbcrate.ID, dbcrate.Name, err)
 		}
 	}
 
-	// otherwise just insert the crate and its tracks.
+	// then insert the crate and its tracks.
 	_, err = db.Crates().InsertTracks(crate)
-	return err
+	if err != nil {
+		return fmt.Errorf("error inserting crate '%s': %w", crate.Name, err)
+	}
+	return nil
 }
 
 // FindAndSetTrackID searches the MixxxDB for the given track by its path and, if found,

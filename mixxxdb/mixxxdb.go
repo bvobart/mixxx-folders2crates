@@ -87,10 +87,14 @@ func (c *cratesDB) Insert(crate Crate) (int64, error) {
 	return result.LastInsertId()
 }
 
-func (c *cratesDB) InsertTracks(crate CrateTracks) (int64, error) {
-	crateID, err := c.Insert(crate.Crate)
-	if err != nil {
-		return 0, err
+func (c *cratesDB) InsertTracks(crate CrateTracks) (crateID int64, err error) {
+	// if crate already has a valid ID, then we assume it is already in the DB under this ID.
+	crateID = crate.ID
+	if crateID == 0 {
+		crateID, err = c.Insert(crate.Crate)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	inserts := []string{}
@@ -106,7 +110,7 @@ func (c *cratesDB) InsertTracks(crate CrateTracks) (int64, error) {
 	}
 
 	query := fmt.Sprint("insert into crate_tracks(crate_id, track_id) values", strings.Join(inserts, ","))
-	_, err = c.db.Exec(query, args)
+	_, err = c.db.Exec(query, args...)
 	return crateID, err
 }
 
@@ -142,7 +146,7 @@ type tracksDB struct {
 
 func (t *tracksDB) FindByPath(filepath string) (*Track, error) {
 	var id uint
-	err := t.db.QueryRow("select id from track_locations where location = ?", filepath).Scan(&id)
+	err := t.db.QueryRow("select id from track_locations where location = ? and fs_deleted = 0", filepath).Scan(&id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
