@@ -15,6 +15,15 @@ type CrateFolder struct {
 	Tracks []TrackFile
 }
 
+// Counts the total number of tracks in the given array of CrateFolders.
+func CountTracks(crates []CrateFolder) int {
+	total := 0
+	for _, crate := range crates {
+		total += len(crate.Tracks)
+	}
+	return total
+}
+
 // FindCrateFolders searches the given folder for music tracks that Mixxx can play.
 // When it finds a folder with at least track in it, it will make a crate with the name of the path to that folder
 // and the tracks that are directly inside the folder.

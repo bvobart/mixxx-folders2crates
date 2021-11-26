@@ -27,7 +27,6 @@ var yellow = color.New(color.FgYellow)
 
 func main() {
 	startTime := time.Now()
-	defer func() { faint.Println("took:", time.Since(startTime)) }()
 	libfolder := parseArgs(os.Args)
 
 	green.Println("Mixxx DB:     ", color.HiWhiteString(mixxxdb.DefaultMixxxDBPath))
@@ -91,13 +90,18 @@ func main() {
 		fmt.Println()
 	}
 
+	// if used in a terminal instead of in a script, ask confirmation
 	if utils.IsInteractive() {
 		pauseTime := time.Now()
-		if err := utils.PromptConfirm("Are you sure you want these crates and tracks in Mixxx's DB?"); err != nil {
+
+		nCrates := len(crates)
+		nTracks := folders2crates.CountTracks(crates)
+		if err := utils.PromptConfirm("Are you sure you want these %d crates, totalling %d tracks, in your Mixxx DB?", nCrates, nTracks); err != nil {
 			fmt.Println()
 			yellow.Println("Alright, no problem, just let me know when you need those crates inserted! 😊")
 			return
 		}
+
 		startTime = startTime.Add(time.Since(pauseTime)) // ignores the time taken to confirm
 		fmt.Println()
 	}
@@ -131,10 +135,13 @@ func main() {
 	if err != nil {
 		red.Println("Error:")
 		red.Println("  ", yellow.Sprint(err.Error()))
+		fmt.Println()
+		faint.Println("took:", time.Since(startTime))
 		os.Exit(7)
 	}
 
 	green.Println("Done!")
+	faint.Println("took:", time.Since(startTime))
 }
 
 // parseArgs parses the arguments passed to folders2crates, deals with invalid arguments and returns the one valid argument: the path to a music library folder
