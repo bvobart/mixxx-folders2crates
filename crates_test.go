@@ -16,10 +16,9 @@ func TestFindCrateFolders(t *testing.T) {
 		dir, err := os.MkdirTemp("", "test-library")
 		require.NoError(t, err)
 
-		// TODO: crates are still temporarily having their name prefixed with TEST
 		expectedCrates := []folders2crates.CrateFolder{
-			{Name: "TEST - House", Tracks: []folders2crates.TrackFile{}},
-			{Name: "TEST - Techno", Tracks: []folders2crates.TrackFile{}},
+			{Name: "House", Tracks: []folders2crates.TrackFile{}},
+			{Name: "Techno", Tracks: []folders2crates.TrackFile{}},
 			// TODO: add subdirectories to test recursive searching behaviour
 		}
 

@@ -157,6 +157,11 @@ func parseArgs(args []string) string {
 
 	libfolder := args[1]
 	if !utils.FolderExists(libfolder) {
+		if libfolder == "version" || libfolder == "--version" || libfolder == "-v" {
+			printVersion()
+			os.Exit(0)
+		}
+
 		if utils.FileExists(libfolder) {
 			red.Println("expecting a music library folder, but got a file: ", libfolder)
 			os.Exit(3)

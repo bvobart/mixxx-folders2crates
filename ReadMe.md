@@ -1,4 +1,4 @@
-# Mixxx - folders2crates
+# `mixxx-folders2crates`
 
 This is the repository for a tool I developed to help keep my crates up to date with my music library. My library consists of loads of songs that I manually sorted into a bunch of folders per genre and subgenre of that music, e.g. something like:
 
