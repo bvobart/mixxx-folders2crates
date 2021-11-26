@@ -4,9 +4,7 @@ before:
     - go mod tidy
 
 builds:
-  - id: amd64
-    main: ./app
-    env:
+  - env:
       - CGO_ENABLED=1
     goos:
       - linux

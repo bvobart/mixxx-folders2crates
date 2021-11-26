@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	ignore "github.com/sabhiram/go-gitignore"
 
-	folders2crates "github.com/bvobart/mixxx-folders2crates"
+	"github.com/bvobart/mixxx-folders2crates/folders2crates"
 	"github.com/bvobart/mixxx-folders2crates/mixxxdb"
 	"github.com/bvobart/mixxx-folders2crates/utils"
 )
