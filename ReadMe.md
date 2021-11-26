@@ -1,5 +1,11 @@
 # `mixxx-folders2crates`
 
+<p align="center">
+  <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/bvobart/mixxx-folders2crates/Release">
+  <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/bvobart/mixxx-folders2crates">
+  <a href="https://pkg.go.dev/github.com/bvobart/mixxx-folders2crates"><img src="https://pkg.go.dev/badge/github.com/bvobart/mixxx-folders2crates.svg" alt="Go Reference"></a>
+</p>
+
 This is the repository for a tool I developed to help keep my crates up to date with my music library. My library consists of loads of songs that I manually sorted into a bunch of folders per genre and subgenre of that music, e.g. something like:
 
 ```
