@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// detect which folders in the music library should become crates and what tracks should be in them according to the folder layout.
-	crates, err := folders2crates.FindCrates(libfolder, ignoreFile)
+	crates, err := folders2crates.FindCrateFolders(libfolder, ignoreFile)
 	if err != nil {
 		color.Red("Error detecting crates from your music library:")
 		color.Red("  %s", color.YellowString(err.Error()))
@@ -69,8 +69,8 @@ func main() {
 
 		for _, track := range crate.Tracks {
 			fmt.Print("- ")
-			faint.Print(path.Dir(track.Path), "/")
-			fmt.Println(path.Base(track.Path))
+			faint.Print(path.Dir(string(track)), "/")
+			fmt.Println(path.Base(string(track)))
 		}
 		fmt.Println()
 	}
@@ -85,7 +85,7 @@ func main() {
 	}
 
 	err = folders2crates.UpdateCratesDB(db, crates)
-	if errors.Is(err, folders2crates.ErrTrackNotFound) || errors.Is(err, mixxxdb.ErrTrackNoID) {
+	if errors.Is(err, folders2crates.ErrTrackNotFound) {
 		color.Yellow("Warning!")
 		color.Yellow("  There were one or more tracks that couldn't be found in Mixxx's library.")
 		color.Yellow("  The easiest way to fix this problem is to start Mixxx, re-scan your library, then close Mixxx and run this program again.")
