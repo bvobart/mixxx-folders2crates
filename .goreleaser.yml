@@ -1,0 +1,33 @@
+# This .goreleaser.yml file configures GoReleaser to reproducibly build `mixxx-folders2crates`.
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: amd64
+    main: ./app
+    env:
+      - CGO_ENABLED=1
+    goos:
+      - linux
+      # - windows
+      # - darwin
+    goarch:
+      - amd64
+      # - arm64 # doesn't work yet, cross-compilation is difficult...
+    ldflags:
+      - -s -w -X github.com/bvobart/mixxx-folders2crates/app.version={{.Version}} -X github.com/bvobart/mixxx-folders2crates/app.commit={{.Commit}} -X github.com/bvobart/mixxx-folders2crates/app.date={{.CommitDate}}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  filters:
+    exclude: []
