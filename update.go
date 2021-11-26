@@ -3,7 +3,6 @@ package folders2crates
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/bvobart/mixxx-folders2crates/mixxxdb"
 	"github.com/hashicorp/go-multierror"
@@ -11,29 +10,20 @@ import (
 
 var ErrTrackNotFound = errors.New("track not found in MixxxDB")
 
-// TODO: insert into Mixxx's SQLite DB
+// Notes from when I was implementing this.
+//
+// insert into Mixxx's SQLite DB
 // first focus on starting with an empty crates table (but songs already analysed so library and track_locations are populated)
 // then insert all crates and their tracks.
 // - for every crate, get crate id either by searching for crate with that name or creating a new crate.
 // - for each track, get track id from searching DB table `track_locations` with track path,
 // - add entry to `crate_tracks` with crate id and track id
 //
-// Next TODO: what if library is already populated from previous use?
+// what if library is already populated from previous use?
 // - Don't delete all crates, to protect personal custom crates.
 // - If a crate with the same name already exists:
 //   - Wipe the crate.
 //   - Add all tracks that are in the generated crate.
-
-// UpdateCratesDB ...
-func UpdateCratesDB(db mixxxdb.MixxxDB, crates []CrateFolder) error {
-	var errors *multierror.Error
-	for _, crate := range crates {
-		errors = multierror.Append(errors, UpdateCrateInDB(db, crate))
-		log.Println("Inserted crate: ", crate.Name)
-	}
-
-	return errors.ErrorOrNil()
-}
 
 // UpdateCrateInDB ...
 func UpdateCrateInDB(db mixxxdb.MixxxDB, crate CrateFolder) error {

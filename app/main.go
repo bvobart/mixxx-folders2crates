@@ -6,9 +6,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/hashicorp/go-multierror"
 	ignore "github.com/sabhiram/go-gitignore"
 
 	folders2crates "github.com/bvobart/mixxx-folders2crates"
@@ -16,12 +18,19 @@ import (
 	"github.com/bvobart/mixxx-folders2crates/utils"
 )
 
+var bold = color.New(color.Bold)
+var faint = color.New(color.Faint)
+var green = color.New(color.FgGreen)
+var red = color.New(color.FgRed)
+var yellow = color.New(color.FgYellow)
+
 func main() {
 	startTime := time.Now()
+	defer func() { faint.Println("took:", time.Since(startTime)) }()
 	libfolder := parseArgs(os.Args)
 
-	color.Green("Mixxx DB:      %s", color.HiWhiteString(mixxxdb.DefaultMixxxDBPath))
-	color.Green("Music Library: %s", color.HiWhiteString(libfolder))
+	green.Println("Mixxx DB:     ", color.HiWhiteString(mixxxdb.DefaultMixxxDBPath))
+	green.Println("Music Library:", color.HiWhiteString(libfolder))
 	fmt.Println()
 
 	// parse .crateignore
@@ -33,23 +42,25 @@ func main() {
 	// detect which folders in the music library should become crates and what tracks should be in them according to the folder layout.
 	crates, err := folders2crates.FindCrateFolders(libfolder, ignoreFile)
 	if err != nil {
-		color.Red("Error detecting crates from your music library:")
-		color.Red("  %s", color.YellowString(err.Error()))
+		red.Println("Error detecting crates from your music library:")
+		red.Println("  ", yellow.Sprint(err.Error()))
 		os.Exit(5)
+	}
+
+	if len(crates) == 0 {
+		green.Println("No crates found, nothing to do!")
+		return
 	}
 
 	// open Mixxx's database
 	db, err := mixxxdb.OpenDefault()
 	if err != nil {
-		color.Red("Error opening Mixxx's DB:")
-		color.Red("  %s", color.YellowString(err.Error()))
+		red.Println("Error opening Mixxx's DB:")
+		red.Println("  ", yellow.Sprint(err.Error()))
 		os.Exit(6)
 	}
 
 	// temporary: print all crates
-	bold := color.New(color.Bold)
-	faint := color.New(color.Faint)
-	green := color.New(color.FgGreen)
 	for _, crate := range crates {
 		if len(crate.Tracks) == 0 {
 			continue
@@ -84,47 +95,66 @@ func main() {
 		fmt.Println()
 	}
 
-	err = folders2crates.UpdateCratesDB(db, crates)
+	yellow.Println("Inserting ", bold.Sprint(len(crates)), yellow.Sprint(" crates into Mixxx's DB..."))
+	fmt.Println()
+
+	// update the crates in Mixxx' DB
+	var multierr *multierror.Error
+	for _, crate := range crates {
+		t := time.Now()
+		err := folders2crates.UpdateCrateInDB(db, crate)
+		multierr = multierror.Append(multierr, err)
+		if err == nil {
+			green.Print("✅ ", crate.Name, strings.Repeat(" ", 48-len(crate.Name)))
+		} else {
+			red.Print("❌ ", crate.Name, strings.Repeat(" ", 48-len(crate.Name)))
+		}
+		faint.Println("\t", time.Since(t))
+	}
+
+	fmt.Println()
+
+	err = multierr.ErrorOrNil()
 	if errors.Is(err, folders2crates.ErrTrackNotFound) {
-		color.Yellow("Warning!")
-		color.Yellow("  There were one or more tracks that couldn't be found in Mixxx's library.")
-		color.Yellow("  The easiest way to fix this problem is to start Mixxx, re-scan your library, then close Mixxx and run this program again.")
+		yellow.Println("Warning!")
+		yellow.Println("  There were one or more tracks that couldn't be found in Mixxx's library.")
+		yellow.Println("  The easiest way to fix this problem is to start Mixxx, let it re-scan your library, then close Mixxx and run this program again.")
 		fmt.Println()
 	}
 	if err != nil {
-		color.Red("Error:")
-		color.Red("  %s", color.YellowString(err.Error()))
+		red.Println("Error:")
+		red.Println("  ", yellow.Sprint(err.Error()))
 		os.Exit(7)
 	}
 
-	color.Green("Done!")
-	faint.Println("took:", time.Since(startTime))
+	green.Println("Done!")
 }
 
 // parseArgs parses the arguments passed to folders2crates, deals with invalid arguments and returns the one valid argument: the path to a music library folder
 func parseArgs(args []string) string {
 	if len(args) < 2 {
-		color.Red("expecting a music library folder as argument, but nothing was provided")
+		red.Println("expecting a music library folder as argument, but nothing was provided")
 		os.Exit(1)
 	}
 	if len(args) > 2 {
-		color.Yellow("WARNING: provided multiple arguments, only the first one will be used: %s. Ignored: %s", args[1], args[2:])
+		yellow.Println("WARNING: provided multiple arguments, only the first one will be used:", args[1])
+		yellow.Println("WARNING: arguments ignored:", args[2:])
 	}
 
 	libfolder := args[1]
 	if !utils.FolderExists(libfolder) {
 		if utils.FileExists(libfolder) {
-			color.Red("expecting a music library folder, but got a file: %s", libfolder)
+			red.Println("expecting a music library folder, but got a file: ", libfolder)
 			os.Exit(3)
 		}
 
-		color.Red("music library folder doesn't exist: %s", libfolder)
+		red.Println("music library folder doesn't exist: ", libfolder)
 		os.Exit(2)
 	}
 
 	if !utils.FileExists(mixxxdb.DefaultMixxxDBPath) {
-		color.Red("cannot open your Mixxx DB, because it does not exist.")
-		color.Yellow("Try starting Mixxx, then closing it, then running this program again.")
+		red.Println("cannot open your Mixxx DB, because it does not exist.")
+		yellow.Println("Try starting Mixxx, then closing it, then running this program again.")
 		os.Exit(4)
 	}
 
