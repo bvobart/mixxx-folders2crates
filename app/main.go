@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"path"
 	"path/filepath"
@@ -78,9 +79,13 @@ func main() {
 			fmt.Println()
 		}
 
-		for _, track := range crate.Tracks {
-			fmt.Print("- ")
-			faint.Print(path.Dir(string(track)), "/")
+		for i, track := range crate.Tracks {
+			if i < len(crate.Tracks)-1 {
+				fmt.Print("├── ")
+			} else {
+				fmt.Print("└── ")
+			}
+			faint.Print(".", strings.TrimPrefix(path.Dir(string(track)), libfolder), "/")
 			fmt.Println(path.Base(string(track)))
 		}
 		fmt.Println()
@@ -89,6 +94,8 @@ func main() {
 	if utils.IsInteractive() {
 		pauseTime := time.Now()
 		if err := utils.PromptConfirm("Are you sure you want these crates and tracks in Mixxx's DB?"); err != nil {
+			fmt.Println()
+			yellow.Println("Alright, no problem, just let me know when you need those crates inserted! 😊")
 			return
 		}
 		startTime = startTime.Add(time.Since(pauseTime)) // ignores the time taken to confirm
@@ -105,9 +112,9 @@ func main() {
 		err := folders2crates.UpdateCrateInDB(db, crate)
 		multierr = multierror.Append(multierr, err)
 		if err == nil {
-			green.Print("✅ ", crate.Name, strings.Repeat(" ", 48-len(crate.Name)))
+			green.Print("✅ ", crate.Name, strings.Repeat(" ", int(math.Max(0, float64(48-len(crate.Name))))))
 		} else {
-			red.Print("❌ ", crate.Name, strings.Repeat(" ", 48-len(crate.Name)))
+			red.Print("❌ ", crate.Name, strings.Repeat(" ", int(math.Max(0, float64(48-len(crate.Name))))))
 		}
 		faint.Println("\t", time.Since(t))
 	}
