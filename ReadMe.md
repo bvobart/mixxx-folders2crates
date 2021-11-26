@@ -19,17 +19,6 @@ This is the repository for a tool I developed to help keep my crates up to date 
 │   │       ├── Hot Hanas Hula - Hot Hands.flac
 │   │       ├── Jack Frost & The Circle Jerks - Acid Rout.flac
 │   │       └── Mix Machine - Bikini.flac
-│   ├── Afro Exotic
-│   │   ├── Afriquoi - Acid Attack.mp3
-│   │   ├── Afriquoi - Bayeke.mp3
-│   │   ├── Afriquoi - Kudaushe.mp3
-│   │   ├── Afriquoi - Ndeko Solo.mp3
-│   │   ├── Afriquoi - Ndeko Solo (Voilaaa Remix).mp3
-│   │   ├── Afriquoi - Sam Sam.mp3
-│   │   ├── Disclosure & Eko Roosevelt - Tondo.aif
-│   │   ├── Disclosure, FATOUMATA DIAWARA - Douha (Mali Mali).flac
-│   │   ├── Nickodemus - Ndini (feat ismael kouyate).mp3
-│   │   └── Raoul K, Manoo feat. Ahmed Sosso - Toukan (Dixon Rework) (Dixon Rework).mp3
 │   ├── Bangers
 │   │   ├── BICEP - VISION OF LOVE.mp3
 │   │   ├── David Harness - Al Greenz (Dance) (Original Mix).mp3
@@ -38,10 +27,46 @@ This is the repository for a tool I developed to help keep my crates up to date 
 ...
 ```
 
-My problem is that I want to import these songs into Mixxx crates based on this folder structure. Doing this manually requires opening Mixxx, then for every leaf folder in my library: navigate to this folder, select every song in it and right click to add to the crate (creating the crate first if it doesn't exist yet). That's quite some manual effort which compounds greatly when adding a few songs to your library every now and then, or moving songs around within my library (making them incorrectly be shown in the crate while they no longer exist).
+My problem is that I want to import these songs into Mixxx crates based on this folder structure.
 
-This tool aims to help overcome that problem by:
-- [ ] importing all the songs in the leaf folders in my library into crates
-  - [ ] creating new crates if they do not yet exist
-  - [ ] if a song is already in your Mixxx library, but in a different folder than it is now, move the song while trying to keep the analysis.
-- [ ] Read from a `.crateignore` file (with syntax like `.gitignore` files) in the library folder to determine which files / folders to ignore for adding to crates.
+Doing this manually requires opening Mixxx, then:
+- for every one of those (sub-)folders in my library: 
+  - navigate to this folder
+  - create a crate for the folder if it doesn't already exist, e.g. `House - 90s - Acid`
+  - select every song in it and right click -> Add to crate -> select the crate for this folder -> tick the checkbox.
+
+That's quite some manual effort which compounds greatly when adding a few songs to my library every now and then, or moving songs around within my library (making them incorrectly be shown in the crate while they no longer exist).
+
+So I decided to spend my manual effort into building this tool to automate the process. 
+It's written in Go and takes about 1 second to update all 46 crates and 832 tracks in my music library in Mixxx's SQLite DB file.
+
+This tool is tested and used by me on Linux (x86 and ARM), but you may also be able to get it working on Windows or MacOS. I included the default Mixxx DB file paths for Linux, Windows and MacOS, so if you can get it to compile it on your machine, this tool should theoretically work. Please let me know if it actually does :)
+
+## Usage
+
+With the latest version of Go (1.17 or higher) installed, `git clone` this repo, then open a terminal in this folder and run:
+
+```sh
+go run ./app FOLDER
+# e.g.
+go run ./app ~/Music
+```
+
+replacing `FOLDER` with the location of your music library.
+
+> Note: this tool depends on [`go-sqlite3`](https://pkg.go.dev/github.com/mattn/go-sqlite3) which is a `CGO_ENABLED=1` package and thus requires a C compiler to be installed for it to compile.
+
+### `.crateignore`
+
+Place a `.crateignore` file at the root of your music library folder to specify files and folders that `mixxx-folders2crates` should ignore.
+This file uses the same syntax as a `.gitignore` file (thanks to [`go-gitignore`](https://pkg.go.dev/github.com/sabhiram/go-gitignore)).
+
+For example:
+
+```sh
+.stfolder
+Phone
+# this is just a comment
+MixxxRecordings
+Beatport Top 100*
+```
