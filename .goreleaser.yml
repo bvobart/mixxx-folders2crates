@@ -14,7 +14,7 @@ builds:
       - amd64
       # - arm64 # doesn't work yet, cross-compilation is difficult...
     ldflags:
-      - -s -w -X github.com/bvobart/mixxx-folders2crates.version={{.Version}} -X github.com/bvobart/mixxx-folders2crates.commit={{.Commit}} -X github.com/bvobart/mixxx-folders2crates.date={{.CommitDate}}
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.CommitDate}}
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
