@@ -50,12 +50,15 @@ This tool is tested and used by me on Linux (x86 and ARM), but you may also be a
 
 ## Usage
 
-With the latest version of Go (1.17 or higher) installed, `git clone` this repo, then open a terminal in this folder and run:
+With the latest version of Go (1.17 or higher) installed, run this command to build and install `mixxx-folders2crates`:
 
 ```sh
-go run ./app FOLDER
-# e.g.
-go run ./app ~/Music
+go install github.com/bvobart/mixxx-folders2crates
+```
+
+Then run it with:
+```sh
+mixxx-folders2crates FOLDER
 ```
 
 replacing `FOLDER` with the location of your music library.
@@ -75,4 +78,14 @@ Phone
 # this is just a comment
 MixxxRecordings
 Beatport Top 100*
+```
+
+### Development
+
+To help develop this tool, `git clone` this repo, then open a terminal in this folder and run:
+
+```sh
+go run . FOLDER
+# e.g.
+go run . ~/Music
 ```
