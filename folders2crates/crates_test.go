@@ -6,7 +6,7 @@ import (
 	"path"
 	"testing"
 
-	folders2crates "github.com/bvobart/mixxx-folders2crates"
+	"github.com/bvobart/mixxx-folders2crates/folders2crates"
 	"github.com/stretchr/testify/require"
 )
 

@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	folders2crates "github.com/bvobart/mixxx-folders2crates"
+	"github.com/bvobart/mixxx-folders2crates/folders2crates"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,7 +15,7 @@ func TestFindTrackFiles(t *testing.T) {
 		_, filename, _, ok := runtime.Caller(0)
 		require.True(t, ok)
 
-		dir := path.Join(path.Dir(filename), "mixxxdb") // mixxxdb folder in this repo.
+		dir := path.Join(path.Dir(filename), "..", "mixxxdb") // mixxxdb folder in this repo.
 		tracks, err := folders2crates.FindTrackFiles(dir, nil)
 
 		require.NoError(t, err)
