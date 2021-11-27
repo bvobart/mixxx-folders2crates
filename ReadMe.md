@@ -53,7 +53,7 @@ This tool is tested and used by me on Linux (x86 and ARM), but you may also be a
 With the latest version of Go (1.17 or higher) installed, run this command to build and install `mixxx-folders2crates`:
 
 ```sh
-go install github.com/bvobart/mixxx-folders2crates
+go install github.com/bvobart/mixxx-folders2crates@latest
 ```
 
 Then run it with:
