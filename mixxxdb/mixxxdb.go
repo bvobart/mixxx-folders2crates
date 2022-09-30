@@ -2,13 +2,30 @@ package mixxxdb
 
 import (
 	"fmt"
+	"path"
+	"runtime"
 
+	"github.com/bvobart/mixxx-folders2crates/utils"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/sqlite"
 )
 
+
+var DefaultMixxxDBPath = func() (string) {
+	switch myos := runtime.GOOS; myos {
+	case "windows":
+		return path.Join(utils.HomeDir(), "Local Settings", "Application Data", "Mixxx", "mixxxdb.sqlite")
+	case "darwin":
+		return path.Join(utils.HomeDir(), "Library", "Containers", "org.mixxx.mixxx", "Data", "Library", "Application Support", "Mixxx", "mixxxdb.sqlite")
+	default:
+		return path.Join(utils.HomeDir(), ".mixxx", "mixxxdb.sqlite")
+	}
+}()
+
+
 // Opens the default MixxxDB SQLite file, as defined by the platform-specific `DefaultMixxxDBPath` variable.
 func OpenDefault() (MixxxDB, error) {
+
 	return Open(DefaultMixxxDBPath)
 }
 
