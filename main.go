@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -26,6 +27,11 @@ var red = color.New(color.FgRed)
 var yellow = color.New(color.FgYellow)
 
 func main() {
+	if mixxxdb.DefaultMixxxDBPath == "" {
+		red.Println("Error: your OS is unsupported, no known path to Mixxx's DB on", runtime.GOOS)
+		os.Exit(4)
+	}
+
 	startTime := time.Now()
 	libfolder := parseArgs(os.Args)
 

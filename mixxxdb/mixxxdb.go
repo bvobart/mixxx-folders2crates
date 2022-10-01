@@ -5,27 +5,48 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/bvobart/mixxx-folders2crates/utils"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/sqlite"
+
+	"github.com/bvobart/mixxx-folders2crates/utils"
 )
 
+// See https://manual.mixxx.org/2.3/en/chapters/appendix/settings_directory.html?#location
+// If this is an empty string, then the current OS is not supported.
+var DefaultMixxxDBPath = func() string {
+	switch runtime.GOOS {
 
-var DefaultMixxxDBPath = func() (string) {
-	switch myos := runtime.GOOS; myos {
+	// Unix-based OSes
+	case "linux":
+		fallthrough
+	case "freebsd":
+		fallthrough
+	case "netbsd":
+		fallthrough
+	case "openbsd":
+		fallthrough
+	case "plan9":
+		fallthrough
+	case "solaris":
+		return path.Join(utils.HomeDir(), ".mixxx", "mixxxdb.sqlite")
+
+	// Windows
 	case "windows":
 		return path.Join(utils.HomeDir(), "Local Settings", "Application Data", "Mixxx", "mixxxdb.sqlite")
+
+	// MacOS
 	case "darwin":
 		return path.Join(utils.HomeDir(), "Library", "Containers", "org.mixxx.mixxx", "Data", "Library", "Application Support", "Mixxx", "mixxxdb.sqlite")
+
+	// Unsupported OSes
 	default:
-		return path.Join(utils.HomeDir(), ".mixxx", "mixxxdb.sqlite")
+		return ""
+
 	}
 }()
 
-
 // Opens the default MixxxDB SQLite file, as defined by the platform-specific `DefaultMixxxDBPath` variable.
 func OpenDefault() (MixxxDB, error) {
-
 	return Open(DefaultMixxxDBPath)
 }
 
